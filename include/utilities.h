@@ -2,8 +2,8 @@
 // Created by onira on 26/06/2023.
 //
 
-#ifndef RAYTRACING_RTWEEKEND_H
-#define RAYTRACING_RTWEEKEND_H
+#ifndef RAYTRACING_UTILITIES_H
+#define RAYTRACING_UTILITIES_H
 
 #include <cmath>
 #include <limits>
@@ -43,4 +43,4 @@ inline double clamp(double x, double min, double max){
 #include "ray.h"
 #include "vec3.h"
 
-#endif //RAYTRACING_RTWEEKEND_H
+#endif //RAYTRACING_UTILITIES_H
