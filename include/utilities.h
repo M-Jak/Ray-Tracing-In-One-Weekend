@@ -25,12 +25,12 @@ inline double degreesToRadians(double degrees) {
     return degrees * pi/180.0;
 }
 
-inline double randomDouble() {
+inline double random_double() {
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double randomDouble(double min, double max){
-    return min + (max-min)*randomDouble();
+inline double random_double(double min, double max){
+    return min + (max-min) * random_double();
 }
 
 inline double clamp(double x, double min, double max){
