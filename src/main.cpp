@@ -1,4 +1,5 @@
 #include "../include/rtweekend.h"
+#include "../include/camera.h"
 
 #include "../include/color.h"
 #include "../include/hittable_list.h"
@@ -18,41 +19,40 @@ color rayColor(const ray& r, const hittable& world) {
 }
 
 int main() {
-    //image
-    const auto aspectRatio = 16.0/9.0;
-    const int imageWidth = 400;
-    const int imageHeight = static_cast<int>(imageWidth/aspectRatio);
 
-    //world
+    // Image
+
+    const auto aspect_ratio = 16.0 / 9.0;
+    const int image_width = 400;
+    const int image_height = static_cast<int>(image_width / aspect_ratio);
+    const int samples_per_pixel = 100;
+
+    // World
+
     hittable_list world;
     world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
     world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
 
-    //camera
-    auto viewportHeight = 2.0;
-    auto viewportWidth = aspectRatio * viewportHeight;
-    auto focalLength = 1.0;
+    // Camera
+    camera cam;
 
-    auto origin = point3(0,0,0);
-    auto horizontal = vec3(viewportWidth,0,0);
-    auto vertical = vec3(0,viewportHeight,0);
-    auto lowerLeftCorner = origin - horizontal/2 - vertical/2 - vec3(0,0,focalLength);
+    // Render
 
+    std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
-    //render
-
-    std::cout<<"P3\n" << imageWidth << ' ' << imageHeight<<"\n255\n";
-
-    for(int j = imageHeight-1; j>=0; j--){
-        std::cerr<<"\rScanlines remaining: " << j << ' '<<std::flush;
-        for (int i = 0; i < imageWidth; ++i){
-            auto u = double(i)/(imageWidth-1);
-            auto v = double(j)/(imageHeight-1);
-            ray r(origin, lowerLeftCorner + u*horizontal + v*vertical - origin);
-            color pixelColor = rayColor(r, world);
-
-            writeColor(std::cout, pixelColor);
+    for (int j = image_height-1; j >= 0; --j) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        for (int i = 0; i < image_width; ++i) {
+            color pixel_color(0, 0, 0);
+            for (int s = 0; s < samples_per_pixel; ++s) {
+                auto u = (i + randomDouble()) / (image_width-1);
+                auto v = (j + randomDouble()) / (image_height-1);
+                ray r = cam.getRay(u, v);
+                pixel_color += rayColor(r, world);
+            }
+            writeColor(std::cout, pixel_color, samples_per_pixel);
         }
     }
-    std::cerr<<"\nDone.\n";
+
+    std::cerr << "\nDone.\n";
 }
