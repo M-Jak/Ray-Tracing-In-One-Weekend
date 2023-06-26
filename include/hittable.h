@@ -7,13 +7,16 @@
 
 #include "ray.h"
 
-struct hitRecord{
+class material;
+
+struct hit_record{
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat_ptr;
     double t;
     bool frontFace;
 
-    inline void setFaceNormal(const ray& r, const vec3& outwardNormal){
+    inline void set_face_normal(const ray& r, const vec3& outwardNormal){
         frontFace = dot(r.direction(),outwardNormal) < 0;
         normal = frontFace ? outwardNormal : -outwardNormal;
     }
@@ -22,7 +25,7 @@ struct hitRecord{
 
 class hittable {
 public:
-    virtual bool hit(const ray& r, double t_min, double t_max, hitRecord& rec) const = 0;
+    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
 };
 
 #endif //RAYTRACING_HITTABLE_H

@@ -21,15 +21,15 @@ public:
     void clear() {objects.clear();}
     void add(shared_ptr<hittable> object) { objects.push_back(object);}
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hitRecord& rec) const override;
+    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
 public:
     std::vector<shared_ptr<hittable>> objects;
 };
 
 
-bool hittable_list::hit(const ray &r, double t_min, double t_max, hitRecord &rec) const {
-    hitRecord tempRec;
+bool hittable_list::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
+    hit_record tempRec;
     bool hitAnything = false;
     auto closestSoFar = t_max;
 
