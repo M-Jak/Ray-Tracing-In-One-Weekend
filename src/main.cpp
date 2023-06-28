@@ -112,13 +112,10 @@ hittable_list spiral_scene() {
         world.add(make_shared<sphere>(center, 0.2, sphereMaterial));
     }
 
-    // Add the remaining specific spheres
+    //middle sphere
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 0.9, material1));
-//    auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
-//    world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
-//    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
-//    world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+
 
     return world;
 }
@@ -183,26 +180,13 @@ int main() {
     // Render
 
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
-//    for (int j = image_height-1; j >= 0; --j) {
-//        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-//        for (int i = 0; i < image_width; ++i) {
-//            color pixel_color(0, 0, 0);
-//            for (int s = 0; s < samples_per_pixel; ++s) {
-//                auto u = (i + random_double()) / (image_width-1);
-//                auto v = (j + random_double()) / (image_height-1);
-//                ray r = cam.get_ray(u, v);
-//                pixel_color += ray_color(r, world, max_depth);
-//            }
-//            write_color(std::cout, pixel_color, samples_per_pixel);
-//        }
-//    }
 
     for (auto& t : threads) {
         t.join();
     }
 
-    for (int i=0; i<num_threads; ++i){
-        std::cout << streams[i].str();
+    for (const auto & stream : streams){
+        std::cout << stream.str();
     }
 
     std::cerr << "\nDone.\n";
