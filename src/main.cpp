@@ -110,13 +110,9 @@ hittable_list spiral_scene() {
         world.add(make_shared<sphere>(center, 0.2, sphereMaterial));
     }
 
-    // Add the remaining specific spheres
+    // Add the remaining specific sphere
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 0.9, material1));
-//    auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
-//    world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
-//    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
-//    world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
     return world;
 }
