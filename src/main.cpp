@@ -7,6 +7,8 @@
 
 #include "../include/material.h"
 #include <iostream>
+#include <sstream>
+#include <thread>
 
 color ray_color(const ray& r, const hittable& world, int depth) {
     hit_record rec;
@@ -121,6 +123,24 @@ hittable_list spiral_scene() {
     return world;
 }
 
+std::ostringstream streams[] {std::ostringstream(), std::ostringstream(), std::ostringstream(), std::ostringstream(), std::ostringstream(), std::ostringstream(), std::ostringstream(), std::ostringstream()};
+
+void renderScanlines(int start, int end, int image_width, int image_height, int samples_per_pixel, camera cam, hittable_list world, int max_depth, int t_id) {
+    for (int j = start; j >= end; --j) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        for (int i = 0; i < image_width; ++i) {
+            color pixel_color(0, 0, 0);
+            for (int s = 0; s < samples_per_pixel; ++s) {
+                auto u = (i + random_double()) / (image_width - 1);
+                auto v = (j + random_double()) / (image_height - 1);
+                ray r = cam.get_ray(u, v);
+                pixel_color += ray_color(r, world, max_depth);
+            }
+            write_color(streams[t_id], pixel_color, samples_per_pixel);
+        }
+    }
+}
+
 int main() {
 
     // Image
@@ -128,8 +148,14 @@ int main() {
     const auto aspect_ratio = 3.0 / 2.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
-    const int max_depth = 10;
+    const int samples_per_pixel = 500;
+    const int num_threads = 8;
+    const int max_depth = 100;
+
+    std::vector<std::thread> threads;
+    int lines_per_thread = image_height/num_threads;
+    int start = image_height-1;
+
     // World
     auto world = spiral_scene();
 
@@ -142,21 +168,44 @@ int main() {
 
     camera cam(lookfrom, lookat, vup, 10, aspect_ratio, aperture, dist_to_focus);
 
+    //Threads
+    for (int t=0; t<num_threads; ++t){
+        int end = start-lines_per_thread+1;
+        if (t==num_threads - 1){
+            end = 0;
+        }
+
+        threads.emplace_back(renderScanlines, start, end, image_width, image_height, samples_per_pixel, cam, world, max_depth, t);
+
+        start = end - 1;
+    }
+
     // Render
 
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0, 0, 0);
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
-            }
-            write_color(std::cout, pixel_color, samples_per_pixel);
-        }
+//    for (int j = image_height-1; j >= 0; --j) {
+//        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+//        for (int i = 0; i < image_width; ++i) {
+//            color pixel_color(0, 0, 0);
+//            for (int s = 0; s < samples_per_pixel; ++s) {
+//                auto u = (i + random_double()) / (image_width-1);
+//                auto v = (j + random_double()) / (image_height-1);
+//                ray r = cam.get_ray(u, v);
+//                pixel_color += ray_color(r, world, max_depth);
+//            }
+//            write_color(std::cout, pixel_color, samples_per_pixel);
+//        }
+//    }
+
+    for (auto& t : threads) {
+        t.join();
     }
+
+    for (int i=0; i<num_threads; ++i){
+        std::cout << streams[i].str();
+    }
+
     std::cerr << "\nDone.\n";
+
+    return 0;
 }
