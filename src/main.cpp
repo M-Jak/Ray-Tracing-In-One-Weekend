@@ -145,7 +145,7 @@ int main() {
     const int max_depth = 50;
     // World
     hittable_list world;
-    color background(0,0,0);
+    color background;
 
     point3 lookfrom;
     point3 lookat;
