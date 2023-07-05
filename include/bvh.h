@@ -1,17 +1,15 @@
-//
-// Created by onira on 03/07/2023.
-//
-
 #ifndef RAYTRACING_BVH_H
 #define RAYTRACING_BVH_H
 
-#include <algorithm>
-
 #include "utilities.h"
+
 #include "hittable.h"
 #include "hittable_list.h"
 
-class bvh_node : public hittable {
+#include <algorithm>
+
+
+class bvh_node : public hittable  {
 public:
     bvh_node();
 
@@ -28,21 +26,12 @@ public:
 
     virtual bool bounding_box(double time0, double time1, aabb& output_box) const override;
 
-    bvh_node(
-            std::vector<shared_ptr<hittable>>& src_objects,
-            size_t start, size_t end, double time0, double time1
-    );
-
 public:
     shared_ptr<hittable> left;
     shared_ptr<hittable> right;
     aabb box;
 };
 
-bool bvh_node::bounding_box(double time0, double time1, aabb& output_box) const {
-    output_box = box;
-    return true;
-}
 
 inline bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable> b, int axis) {
     aabb box_a;
@@ -67,8 +56,9 @@ bool box_z_compare (const shared_ptr<hittable> a, const shared_ptr<hittable> b) 
     return box_compare(a, b, 2);
 }
 
+
 bvh_node::bvh_node(
-        std::vector<shared_ptr<hittable>>& src_objects,
+        const std::vector<shared_ptr<hittable>>& src_objects,
         size_t start, size_t end, double time0, double time1
 ) {
     auto objects = src_objects; // Create a modifiable array of the source scene objects
@@ -109,5 +99,21 @@ bvh_node::bvh_node(
 }
 
 
+bool bvh_node::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+    if (!box.hit(r, t_min, t_max))
+        return false;
 
-#endif //RAYTRACING_BVH_H
+    bool hit_left = left->hit(r, t_min, t_max, rec);
+    bool hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
+
+    return hit_left || hit_right;
+}
+
+
+bool bvh_node::bounding_box(double time0, double time1, aabb& output_box) const {
+    output_box = box;
+    return true;
+}
+
+
+#endif
