@@ -347,8 +347,8 @@ int main() {
 
     auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
-    int samples_per_pixel = 100;
-    int max_depth = 50;
+    int samples_per_pixel = 1000;
+    int max_depth = 1000;
 
     // World
     hittable_list world;
@@ -435,8 +435,8 @@ int main() {
             world = custom_scene();
             aspect_ratio = 1.0;
             image_width = 400;
-            samples_per_pixel = 10;
-            max_depth = 10;
+            samples_per_pixel = 1000;
+            max_depth = 1000;
             lookfrom = point3(450, 800, -300);
             lookat = point3(278, 278, 0);
             vfov = 40.0;
