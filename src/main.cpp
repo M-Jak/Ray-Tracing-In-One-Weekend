@@ -479,7 +479,5 @@ int main() {
     for (const auto & stream : streams){
         std::cout << stream.str();
     }
-
-
     std::cerr << "\nDone.\n";
 }
